@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,35 +19,37 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import edu.wctc.android.todolist.model.ToDo;
+import edu.wctc.android.todolist.service.ToDoDatabaseService;
 import edu.wctc.android.todolist.service.ToDoService;
 
 public class MainActivity extends ListActivity {
 
 	private ToDoService toDoService;
 	private ArrayAdapter<ToDo> toDosAdapter;
+	private List<ToDo> toDos;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		toDoService = new ToDoService();
-		List<ToDo> toDos = toDoService.getToDos();
+		// toDoService = new ToDoListService();
+		toDoService = new ToDoDatabaseService();
+		toDos = toDoService.getToDos();
 
 		toDosAdapter = new ArrayAdapter<ToDo>(this, R.layout.activity_main,
 				toDos);
-
+		
 		setListAdapter(toDosAdapter);
 
 		ListView listView = getListView();
 		listView.setTextFilterEnabled(true);
 
 		listView.setOnItemClickListener(new OnItemClickListener() {
+
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				// When clicked, show a toast with the TextView text
-				Toast.makeText(getApplicationContext(),
-						((TextView) view).getText(), Toast.LENGTH_SHORT).show();
+				showDetailDialog(view, id);
 			}
 		});
 
@@ -57,9 +58,7 @@ public class MainActivity extends ListActivity {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				// When long-clicked, show a sample toast
-				Log.d("DELETE", "position=" + position + ", id=" + id);
-				deleteItem(id);
+				deleteItem(view, id);
 				Toast.makeText(getApplicationContext(),
 						"Item has been deleted!", Toast.LENGTH_SHORT).show();
 				return false;
@@ -84,7 +83,7 @@ public class MainActivity extends ListActivity {
 		switch (item.getItemId()) {
 
 		case 1:
-			addItemDialog();
+			showAddItemDialog();
 			break;
 		case 2:
 			clearItems();
@@ -97,7 +96,24 @@ public class MainActivity extends ListActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void addItemDialog() {
+	private void showDetailDialog(View view, long id) {
+		ToDo toDo = toDoService.getToDo(((TextView) view).getText().toString());
+
+		LayoutInflater inflater = LayoutInflater.from(this);
+		final View detailView = inflater.inflate(R.layout.detail, null);
+
+		((TextView) detailView.findViewById(R.id.itemId)).setText(String
+				.valueOf(toDo.getId()));
+		((TextView) detailView.findViewById(R.id.itemDescription)).setText(toDo
+				.getDescription());
+		((TextView) detailView.findViewById(R.id.itemOwner)).setText(toDo
+				.getOwner());
+
+		new AlertDialog.Builder(this).setTitle("Item Details")
+				.setView(detailView).setPositiveButton("Ok", null).show();
+	}
+
+	private void showAddItemDialog() {
 		LayoutInflater inflater = LayoutInflater.from(this);
 		final View addView = inflater.inflate(R.layout.add, null);
 
@@ -105,12 +121,17 @@ public class MainActivity extends ListActivity {
 				.setTitle("Add Item")
 				.setView(addView)
 				.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
 					public void onClick(DialogInterface dialog, int whichButton) {
-						// Retrieve what the user entered.
-						EditText inputBox = (EditText) addView
-								.findViewById(R.id.item);
-						String description = (inputBox).getText().toString();
-						addItem(description);
+						String description = ((EditText) addView
+								.findViewById(R.id.itemDescription)).getText()
+								.toString();
+						String owner = ((EditText) addView
+								.findViewById(R.id.itemOwner)).getText()
+								.toString();
+						// addItem(description);
+						addItem(new ToDo.Builder(description).owner(owner)
+								.build());
 					}
 
 				})
@@ -123,16 +144,29 @@ public class MainActivity extends ListActivity {
 						}).show();
 	}
 
+	@SuppressWarnings("unused")
 	private void addItem(String description) {
 		toDoService.addToDo(description);
+		toDos = toDoService.getToDos();
 		toDosAdapter.notifyDataSetChanged();
 
 		Toast.makeText(getApplicationContext(), "Added item",
 				Toast.LENGTH_SHORT).show();
 	}
 
-	private void deleteItem(long id) {
-		toDoService.removeToDo(id);
+	private void addItem(ToDo toDo) {
+		toDoService.addToDo(toDo);
+		toDos = toDoService.getToDos();
+		toDosAdapter.notifyDataSetChanged();
+
+		Toast.makeText(getApplicationContext(), "Added item",
+				Toast.LENGTH_SHORT).show();
+	}
+
+	private void deleteItem(View view, long id) {
+		String description = ((TextView) view).getText().toString();
+		toDoService.removeToDo(description);
+		toDos = toDoService.getToDos();
 		toDosAdapter.notifyDataSetChanged();
 		Toast.makeText(getApplicationContext(), "Deleted item",
 				Toast.LENGTH_SHORT).show();
@@ -141,6 +175,7 @@ public class MainActivity extends ListActivity {
 
 	private void clearItems() {
 		toDoService.clearToDos();
+		toDos = toDoService.getToDos();
 		toDosAdapter.notifyDataSetChanged();
 		Toast.makeText(getApplicationContext(), "Cleared items",
 				Toast.LENGTH_SHORT).show();

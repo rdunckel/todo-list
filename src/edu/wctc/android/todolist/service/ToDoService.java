@@ -1,51 +1,25 @@
 package edu.wctc.android.todolist.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import edu.wctc.android.todolist.model.ToDo;
 
-public class ToDoService {
+public interface ToDoService {
 
-	private List<ToDo> toDos;
+	public abstract List<ToDo> getToDos();
 
-	public ToDoService() {
-		buildToDos();
-	}
+	public abstract void clearToDos();
 
-	public List<ToDo> getToDos() {
-		return toDos;
-	}
+	public abstract ToDo getToDo(long id);
 
-	public void setToDos(List<ToDo> toDos) {
-		this.toDos = toDos;
-	}
+	public abstract ToDo getToDo(String description);
 
-	public void addToDo(String description) {
-		ToDo toDo = new ToDo(toDos.size() + 1, description);
-		toDos.add(toDo);
-	}
+	public abstract void addToDo(String description);
 
-	public void addToDo(ToDo toDo) {
-		toDos.add(toDo);
-	}
+	public abstract void addToDo(ToDo toDo);
 
-	public void removeToDo(long id) {
-		if (id < toDos.size()) {
-			toDos.remove(new ToDo(id, ""));
-		}
-	}
+	public abstract void removeToDo(long id);
 
-	public void clearToDos() {
-		toDos.clear();
-
-	}
-
-	private void buildToDos() {
-		ToDo[] toDoArray = { new ToDo(1, "Do the laundry"),
-				new ToDo(2, "Wash the dishes"), new ToDo(3, "Mow the lawn") };
-		toDos = new ArrayList<ToDo>(Arrays.asList(toDoArray));
-	}
+	public abstract void removeToDo(String description);
 
 }

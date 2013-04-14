@@ -4,6 +4,39 @@ public class ToDo {
 
 	private long id;
 	private String description;
+	private String owner = "";
+
+	public static class Builder {
+		private String description;
+
+		private long id = 0;
+		private String owner = "";
+
+		public Builder(String description) {
+			this.description = description;
+		}
+
+		public Builder id(long val) {
+			id = val;
+			return this;
+		}
+
+		public Builder owner(String val) {
+			owner = val;
+			return this;
+		}
+
+		public ToDo build() {
+			return new ToDo(this);
+		}
+
+	}
+
+	private ToDo(Builder builder) {
+		description = builder.description;
+		id = builder.id;
+		owner = builder.owner;
+	}
 
 	public ToDo(long id, String description) {
 		this.id = id;
@@ -26,9 +59,17 @@ public class ToDo {
 		this.description = description;
 	}
 
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
 	@Override
 	public String toString() {
-		return id + ": " + description;
+		return description;
 	}
 
 	@Override

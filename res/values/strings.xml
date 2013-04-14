@@ -2,7 +2,11 @@
 <resources>
 
     <string name="app_name">ToDoList</string>
-    <string name="add_item_hint">ToDo description</string>
+    <string name="item_description_hint">ToDo description</string>
+    <string name="item_owner_hint">ToDo owner</string>
+    <string name="detail_idLabel">ID:</string>
+    <string name="detail_descriptionLabel">Description</string>
+    <string name="detail_ownerLabel">Owner</string>
     <string name="menu_settings">Settings</string>
 
 </resources>

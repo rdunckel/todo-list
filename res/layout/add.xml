@@ -11,9 +11,15 @@
         android:paddingRight="8dp" />
 
     <EditText
-        android:id="@+id/item"
+        android:id="@+id/itemDescription"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/add_item_hint" />
+        android:hint="@string/item_description_hint" />
+
+    <EditText
+        android:id="@+id/itemOwner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/item_owner_hint" />
 
 </LinearLayout>
